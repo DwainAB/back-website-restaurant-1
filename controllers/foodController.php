@@ -146,10 +146,11 @@ class FoodController
         $email = $data['email'];
         $phone = $data['phone'];
         $address = $data['address'];
+        $method = $data['method'];
         $cartItems = $data['cartItems'];
 
         // Ajouter le client
-        $clientId = $this->model->addClient($firstname, $lastname, $email, $phone, $address);
+        $clientId = $this->model->addClient($firstname, $lastname, $email, $phone, $address, $method);
 
         if ($clientId !== false) {
             // Ajouter chaque produit de la commande

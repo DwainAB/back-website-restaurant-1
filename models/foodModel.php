@@ -102,9 +102,6 @@ class FoodModel
     }
 
 
-
-
-
     public function deleteFood($id)
     {
         $query = "DELETE FROM products WHERE id = :id";
@@ -118,15 +115,16 @@ class FoodModel
         }
     }
 
-    public function addClient($firstname, $lastname, $email, $phone, $address)
+    public function addClient($firstname, $lastname, $email, $phone, $address, $method)
     {
-        $query = "INSERT INTO clients (firstname, lastname, email, phone, address) VALUES (:firstname, :lastname, :email, :phone, :address)";
+        $query = "INSERT INTO clients (firstname, lastname, email, phone, address, method) VALUES (:firstname, :lastname, :email, :phone, :address, :method)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':firstname', $firstname);
         $stmt->bindParam(':lastname', $lastname);
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':phone', $phone);
         $stmt->bindParam(':address', $address);
+        $stmt->bindParam(':method', $method);
 
         if ($stmt->execute()) {
             return $this->db->lastInsertId(); // Retourne l'ID du client ajouté
@@ -160,6 +158,7 @@ class FoodModel
             c.email AS client_email,
             c.phone AS client_phone,
             c.address AS client_address,
+            c.method AS client_method,
         
             GROUP_CONCAT(
                 JSON_OBJECT(
