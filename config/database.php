@@ -10,7 +10,6 @@ try {
     // Configurez les attributs PDO comme nécessaire
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // La ligne suivante est pour le débogage, vous pouvez la commenter ou la supprimer plus tard
-    echo 'Connexion réussie à la base de données SQLite.';
 } catch (PDOException $e) {
     die("Erreur de connexion à la base de donnée : " . $e->getMessage());
 }
