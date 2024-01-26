@@ -59,7 +59,7 @@ class UserController
         // Il n'est pas nécessaire de vérifier si tous les champs sont remplis
         // Le modèle se chargera d'utiliser les valeurs existantes si certaines sont manquantes
         $this->userModel->update($id, $firstname, $lastname, $email, $tel, $address, $role);
-        echo 'Utilisateur mis à jour avec succès.';
+        echo json_encode(['message' => 'Utilisateur mis à jour avec succès.']);
     }
 
 

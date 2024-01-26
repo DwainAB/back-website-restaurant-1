@@ -1,7 +1,7 @@
 <?php
 // googlePlacesProxy.php
 
-header('Access-Control-Allow-Origin: http://localhost:3000'); // Autorise les requêtes CORS de votre application React
+header('Access-Control-Allow-Origin: *'); // Autorise les requêtes CORS de votre application React
 header('Content-Type: application/json'); // Défi
 
 // Assurez-vous que le serveur accepte uniquement les requêtes GET
