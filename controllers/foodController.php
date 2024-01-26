@@ -184,11 +184,14 @@ class FoodController
     {
         try {
             $this->model->deleteClientAndOrders($clientId);
-            // Redirection ou affichage d'un message de succès
+            http_response_code(200);
+            echo json_encode(['message' => 'Le client et ses commandes ont été supprimés avec succès.']);
         } catch (Exception $e) {
-            // Gérer l'erreur (afficher un message, logger l'erreur, etc.)
+            http_response_code(500); // Erreur de serveur interne
+            echo json_encode(['error' => 'Erreur lors de la suppression du client: ' . $e->getMessage()]);
         }
     }
+
 
     public function addCategory()
     {
