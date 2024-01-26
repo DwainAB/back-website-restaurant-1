@@ -144,6 +144,7 @@ class FoodModel
         return $stmt->execute();
     }
 
+
     public function getClientsWithOrders()
     {
 
@@ -188,19 +189,28 @@ class FoodModel
             // Suppression des commandes du client
             $stmt = $this->db->prepare("DELETE FROM orders WHERE client_id = :clientId");
             $stmt->bindParam(":clientId", $clientId, PDO::PARAM_INT);
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                // Log l'erreur si la requête échoue
+                error_log("Erreur lors de la suppression des commandes: " . implode(", ", $stmt->errorInfo()));
+            }
 
             // Suppression du client
             $stmt = $this->db->prepare("DELETE FROM clients WHERE id = :clientId");
             $stmt->bindParam(":clientId", $clientId, PDO::PARAM_INT);
-            $stmt->execute();
+            if (!$stmt->execute()) {
+                // Log l'erreur si la requête échoue
+                error_log("Erreur lors de la suppression du client: " . implode(", ", $stmt->errorInfo()));
+            }
 
             $this->db->commit();
         } catch (PDOException $e) {
             $this->db->rollBack();
+            // Log l'exception
+            error_log("Exception lors de la suppression: " . $e->getMessage());
             throw $e;
         }
     }
+
 
     public function addCategory($name)
     {
