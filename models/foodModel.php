@@ -135,7 +135,7 @@ class FoodModel
 
     public function addOrder($clientId, $productId, $quantity)
     {
-        $query = "INSERT INTO orders (client_id, product_id, quantity, date) VALUES (:client_id, :product_id, :quantity, NOW())";
+        $query = "INSERT INTO orders (client_id, product_id, quantity, date) VALUES (:client_id, :product_id, :quantity, datetime('now'))";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':client_id', $clientId);
         $stmt->bindParam(':product_id', $productId);
@@ -146,10 +146,7 @@ class FoodModel
 
     public function getClientsWithOrders()
     {
-        // Augmenter la taille maximale pour GROUP_CONCAT pour cette session
-        $this->db->exec("SET SESSION group_concat_max_len = 1000000;");
 
-        // Votre requête existante
         $stmt = $this->db->prepare("
             SELECT 
             c.id AS client_id,
@@ -178,6 +175,7 @@ class FoodModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
 
 
