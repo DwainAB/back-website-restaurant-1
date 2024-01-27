@@ -2,7 +2,7 @@
 
 // Spécifier le chemin absolu vers votre fichier de base de données SQLite
 // Assurez-vous que le chemin d'accès et les permissions sont corrects
-$path = __DIR__ . '/my_database.sqlite';
+$path = __DIR__ . '/db.sqlite';
 
 try {
     // Créez un nouvel objet PDO pour la connexion à la base de données SQLite
