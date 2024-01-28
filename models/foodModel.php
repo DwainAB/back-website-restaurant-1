@@ -135,7 +135,7 @@ class FoodModel
 
     public function addOrder($clientId, $productId, $quantity)
     {
-        $query = "INSERT INTO orders (client_id, product_id, quantity, date) VALUES (:client_id, :product_id, :quantity, datetime('now'))";
+        $query = "INSERT INTO orders (client_id, product_id, quantity, date) VALUES (:client_id, :product_id, :quantity, NOW())";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':client_id', $clientId);
         $stmt->bindParam(':product_id', $productId);
@@ -143,6 +143,8 @@ class FoodModel
 
         return $stmt->execute();
     }
+
+
 
 
     public function getClientsWithOrders()
@@ -186,11 +188,6 @@ class FoodModel
 
         return $clients;
     }
-
-
-
-
-
 
     public function deleteClientAndOrders($clientId)
     {
