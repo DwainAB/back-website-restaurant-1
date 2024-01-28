@@ -49,18 +49,30 @@ class UserController
 
     public function updateUser($id)
     {
-        $firstname = $_POST['firstname'] ?? null;
-        $lastname = $_POST['lastname'] ?? null;
-        $email = $_POST['email'] ?? null;
-        $tel = $_POST['tel'] ?? null;
-        $address = $_POST['address'] ?? null;
-        $role = $_POST['role'] ?? null;
+        try {
+            $firstname = $_POST['firstname'] ?? null;
+            $lastname = $_POST['lastname'] ?? null;
+            $email = $_POST['email'] ?? null;
+            $tel = $_POST['tel'] ?? null;
+            $address = $_POST['address'] ?? null;
+            $role = $_POST['role'] ?? null;
 
-        // Il n'est pas nécessaire de vérifier si tous les champs sont remplis
-        // Le modèle se chargera d'utiliser les valeurs existantes si certaines sont manquantes
-        $this->userModel->update($id, $firstname, $lastname, $email, $tel, $address, $role);
-        echo json_encode(['message' => 'Utilisateur mis à jour avec succès.']);
+            // Ici, le modèle `update` doit renvoyer `true` si la mise à jour est réussie, `false` sinon
+            $updateStatus = $this->userModel->update($id, $firstname, $lastname, $email, $tel, $address, $role);
+
+            if ($updateStatus) {
+                http_response_code(200); // OK
+                echo json_encode(['message' => 'Utilisateur mis à jour avec succès.']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['message' => 'Erreur lors de la mise à jour de l\'utilisateur.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['message' => 'Erreur serveur: ' . $e->getMessage()]);
+        }
     }
+
 
 
     public function deleteUser($id)
