@@ -147,7 +147,6 @@ class FoodModel
 
     public function getClientsWithOrders()
     {
-
         $stmt = $this->db->prepare("
             SELECT 
             c.id AS client_id,
@@ -159,13 +158,15 @@ class FoodModel
             c.method AS client_method,
         
             GROUP_CONCAT(
-                JSON_OBJECT(
-                    'order_id', o.id,
-                    'order_quantity', o.quantity,
-                    'order_date', o.date,
-                    'product_id', p.id,
-                    'product_title', p.title,
-                    'product_price', p.price
+                CONCAT(
+                    '{',
+                        '\"order_id\":', o.id, ',',
+                        '\"order_quantity\":', o.quantity, ',',
+                        '\"order_date\":\"', o.date, '\",',
+                        '\"product_id\":', p.id, ',',
+                        '\"product_title\":\"', p.title, '\",',
+                        '\"product_price\":', p.price,
+                    '}'
                 )
             ) AS orders
         FROM clients c
@@ -174,8 +175,18 @@ class FoodModel
         GROUP BY c.id;
         ");
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Convertir la chaîne JSON en objet JSON pour chaque client
+        foreach ($clients as $key => $client) {
+            if ($client['orders'] !== null) {
+                $clients[$key]['orders'] = array_map('json_decode', explode(',', $client['orders']));
+            }
+        }
+
+        return $clients;
     }
+
 
 
 
