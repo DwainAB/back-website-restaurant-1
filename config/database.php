@@ -19,7 +19,6 @@ try {
     // Créez un nouvel objet PDO pour la connexion à la base de données MySQL
     $pdo = new PDO($dsn, $user, $pass, $options);
     // La ligne suivante est pour le débogage, vous pouvez la commenter ou la supprimer plus tard
-    echo "Connexion à la base de données MySQL établie avec succès.";
 } catch (PDOException $e) {
     die("Erreur de connexion à la base de donnée : " . $e->getMessage());
 }
