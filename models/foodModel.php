@@ -173,6 +173,7 @@ class FoodModel
                         '\"product_price\":', p.price,
                     '}'
                 )
+                SEPARATOR ','
             ) AS orders
         FROM clients c
         LEFT JOIN orders o ON c.id = o.client_id
@@ -185,12 +186,18 @@ class FoodModel
         // Convertir la chaîne JSON en objet JSON pour chaque client
         foreach ($clients as $key => $client) {
             if ($client['orders'] !== null) {
-                $clients[$key]['orders'] = array_map('json_decode', explode(',', $client['orders']));
+                // Vérifier si la chaîne JSON est non vide avant de la convertir
+                if (!empty($client['orders'])) {
+                    $clients[$key]['orders'] = array_map('json_decode', explode(',', $client['orders']));
+                } else {
+                    $clients[$key]['orders'] = null; // Si la chaîne est vide, définir orders sur null
+                }
             }
         }
 
         return $clients;
     }
+
 
 
     public function deleteClientAndOrders($clientId)
