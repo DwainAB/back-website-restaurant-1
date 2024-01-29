@@ -152,7 +152,7 @@ class FoodModel
         // Augmenter la taille maximale pour GROUP_CONCAT pour cette session
         $this->db->exec("SET SESSION group_concat_max_len = 1000000;");
 
-        // Votre requête existante, sans JSON_OBJECT
+        // Préparer la requête pour récupérer les clients et leurs commandes sous forme de JSON
         $stmt = $this->db->prepare("
             SELECT 
             c.id AS client_id,
@@ -161,46 +161,40 @@ class FoodModel
             c.email AS client_email,
             c.phone AS client_phone,
             c.address AS client_address,
-            o.id AS order_id,
-            o.quantity AS order_quantity,
-            o.date AS order_date,
-            p.id AS product_id,
-            p.title AS product_title,
-            p.price AS product_price
+            c.method AS client_method,
+            
+            // Utiliser GROUP_CONCAT pour agréger les commandes en une seule chaîne JSON
+            GROUP_CONCAT(
+                CONCAT(
+                    '{',
+                        '\"order_id\":', o.id, ',',
+                        '\"order_quantity\":', o.quantity, ',',
+                        '\"order_date\":\"', DATE_FORMAT(o.date, '%Y-%m-%dT%TZ'), '\",',
+                        '\"product_id\":', o.product_id,
+                    '}'
+                )
+            SEPARATOR ','
+            ) AS orders
         FROM clients c
         LEFT JOIN orders o ON c.id = o.client_id
-        LEFT JOIN products p ON o.product_id = p.id
         GROUP BY c.id;
         ");
+
         $stmt->execute();
         $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $results = [];
-        foreach ($clients as $client) {
-            $clientData = [
-                'client_id' => $client['client_id'],
-                'client_firstname' => $client['client_firstname'],
-                'client_lastname' => $client['client_lastname'],
-                'client_email' => $client['client_email'],
-                'client_phone' => $client['client_phone'],
-                'client_address' => $client['client_address'],
-                'orders' => []
-            ];
-            if ($client['order_id'] !== null) {
-                $clientData['orders'][] = [
-                    'order_id' => $client['order_id'],
-                    'order_quantity' => $client['order_quantity'],
-                    'order_date' => $client['order_date'],
-                    'product_id' => $client['product_id'],
-                    'product_title' => $client['product_title'],
-                    'product_price' => $client['product_price']
-                ];
+        // Convertir la chaîne JSON agrégée en un tableau d'objets pour chaque client
+        foreach ($clients as $key => $client) {
+            if ($client['orders'] !== null) {
+                $clients[$key]['orders'] = json_decode('[' . $client['orders'] . ']', true);
+            } else {
+                $clients[$key]['orders'] = []; // Aucune commande n'est définie sur un tableau vide
             }
-            $results[] = $clientData;
         }
 
-        return $results;
+        return $clients;
     }
+
 
 
 
