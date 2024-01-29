@@ -1,47 +1,43 @@
 <?php
 
-header('Access-Control-Allow-Origin: *'); // Autorisez spécifiquement votre domaine client
-header('Content-Type: application/json');
+// Importe les classes PHPMailer dans l'espace de noms global
+// Celles-ci doivent être en haut de votre script, pas à l'intérieur d'une fonction
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Ajoutez d'autres en-têtes CORS si nécessaire
-    header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
-    exit(0); // Pas d'autres actions nécessaires pour OPTIONS
-}
+// Fichiers requis
+require 'phpmailer/src/Exception.php';
+require 'phpmailer/src/PHPMailer.php';
+require 'phpmailer/src/SMTP.php';
 
-// Votre logique d'envoi d'e-mail
+// Crée une instance ; passer `true` active les exceptions
+if (isset($_POST["send"])) {
 
-// Vérifiez si le formulaire a été soumis
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Assurez-vous que le champ email et les noms sont présents
-    if (isset($_POST['email']) && isset($_POST['firstName']) && isset($_POST['lastName'])) {
-        // Récupérez les données du formulaire
-        $email = $_POST['email'];
-        $firstName = $_POST['firstName'];
-        $lastName = $_POST['lastName'];
+    $mail = new PHPMailer(true);
 
-        // Préparez le message
-        $to = $email; // Destinataire de l'email
-        $subject = "Confirmation de commande"; // Sujet de l'email
-        $message = "Bonjour " . $firstName . " " . $lastName . ",\n\nVotre commande a été reçue et est en traitement.\n\nCordialement,\nL'équipe du restaurant.";
+    // Paramètres du serveur
+    $mail->isSMTP();                                            // Envoie en utilisant SMTP
+    $mail->Host       = 'smtp.gmail.com';                       // Définit le serveur SMTP pour l'envoi
+    $mail->SMTPAuth   = true;                                   // Active l'authentification SMTP
+    $mail->Username   = 'dwaincontact@gmail.com';               // Nom d'utilisateur SMTP
+    $mail->Password   = 'mzrfykgngaybzdqr';                    // Mot de passe SMTP
+    $mail->SMTPSecure = 'ssl';                                  // Active le cryptage SSL implicite
+    $mail->Port       = 465;
 
-        // Pour envoyer un email HTML, l'en-tête Content-type doit être défini
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    // Destinataires
+    $mail->setFrom('dwaincontact@gmail.com', 'Dwain');         // Email et nom de l'expéditeur
+    $mail->addAddress($_POST['email'], $_POST['firstname'] . ' ' . $_POST['lastname']); // Ajoute un destinataire
+    $mail->addReplyTo('dwaincontact@gmail.com', 'Information'); // Réponse à l'email de l'expéditeur
 
-        // En-têtes additionnels
-        $headers .= 'From: dwaincontact@gmail.com' . "\r\n"; // Remplacez par votre adresse email d'envoi
+    // Contenu
+    $mail->isHTML(true);                                        // Définit le format de l'email en HTML
+    $mail->Subject = $_POST["Commande reçu !"];                         // Sujet de l'email
+    $mail->Body    = "Bonjour " . $_POST['firstname'] . " " . $_POST['lastname'] . ",<br><br>" . "Votre commande à bien été envoyé !"; // Message de l'email
 
-        // Envoi de l'email
-        if (mail($to, $subject, $message, $headers)) {
-            echo json_encode(["message" => "Email de confirmation envoyé à : " . $email]);
-        } else {
-            echo json_encode(["message" => "L'envoi de l'email de confirmation a échoué."]);
-        }
-    } else {
-        echo json_encode(["message" => "Tous les champs n'ont pas été renseignés."]);
+    try {
+        $mail->send();
+        echo json_encode(['message' => "Mail envoyé"]);
+    } catch (Exception $e) {
+        echo json_encode(['message' => 'Erreur envoi mail: ' . $e->getMessage()]);
     }
-} else {
-    echo json_encode(["message" => "Méthode de requête non autorisée."]);
 }
