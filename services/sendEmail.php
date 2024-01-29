@@ -1,5 +1,11 @@
 <?php
 
+// Autoriser les requêtes de n'importe quelle origine
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+
 // Importe les classes PHPMailer dans l'espace de noms global
 // Celles-ci doivent être en haut de votre script, pas à l'intérieur d'une fonction
 use PHPMailer\PHPMailer\PHPMailer;
