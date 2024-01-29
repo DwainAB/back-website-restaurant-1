@@ -149,6 +149,9 @@ class FoodModel
 
     public function getClientsWithOrders()
     {
+        // Augmenter la limite de GROUP_CONCAT pour la session courante
+        $this->db->exec("SET SESSION group_concat_max_len = 1000000;");
+
         $stmt = $this->db->prepare("
             SELECT 
             c.id AS client_id,
@@ -188,6 +191,7 @@ class FoodModel
 
         return $clients;
     }
+
 
     public function deleteClientAndOrders($clientId)
     {
