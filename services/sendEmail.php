@@ -1,4 +1,17 @@
 <?php
+
+header('Access-Control-Allow-Origin: *'); // Autorisez spécifiquement votre domaine client
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Ajoutez d'autres en-têtes CORS si nécessaire
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit(0); // Pas d'autres actions nécessaires pour OPTIONS
+}
+
+// Votre logique d'envoi d'e-mail
+
 // Vérifiez si le formulaire a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Assurez-vous que le champ email et les noms sont présents
