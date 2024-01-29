@@ -163,7 +163,7 @@ class FoodModel
             c.address AS client_address,
             c.method AS client_method,
             
-            // Utiliser GROUP_CONCAT pour agréger les commandes en une seule chaîne JSON
+            /* Utiliser GROUP_CONCAT pour agréger les commandes en une seule chaîne JSON */
             GROUP_CONCAT(
                 CONCAT(
                     '{',
