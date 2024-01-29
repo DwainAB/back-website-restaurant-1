@@ -163,20 +163,23 @@ class FoodModel
             c.address AS client_address,
             c.method AS client_method,
             
-            /* Utiliser GROUP_CONCAT pour agréger les commandes en une seule chaîne JSON */
             GROUP_CONCAT(
                 CONCAT(
                     '{',
                         '\"order_id\":', o.id, ',',
                         '\"order_quantity\":', o.quantity, ',',
                         '\"order_date\":\"', DATE_FORMAT(o.date, '%Y-%m-%dT%TZ'), '\",',
-                        '\"product_id\":', o.product_id,
+                        '\"product_id\":', p.id, ',',
+                        '\"product_title\":\"', REPLACE(p.title, '\"', '\\\"'), '\",',
+                        '\"product_description\":\"', REPLACE(p.description, '\"', '\\\"'), '\",',
+                        '\"product_price\":', p.price,
                     '}'
                 )
             SEPARATOR ','
             ) AS orders
         FROM clients c
         LEFT JOIN orders o ON c.id = o.client_id
+        LEFT JOIN products p ON o.product_id = p.id
         GROUP BY c.id;
         ");
 
