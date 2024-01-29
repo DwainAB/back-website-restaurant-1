@@ -149,9 +149,10 @@ class FoodModel
 
     public function getClientsWithOrders()
     {
-        // Augmenter la limite de GROUP_CONCAT pour la session courante
+        // Augmenter la taille maximale pour GROUP_CONCAT pour cette session
         $this->db->exec("SET SESSION group_concat_max_len = 1000000;");
 
+        // Votre requête existante
         $stmt = $this->db->prepare("
             SELECT 
             c.id AS client_id,
@@ -160,20 +161,16 @@ class FoodModel
             c.email AS client_email,
             c.phone AS client_phone,
             c.address AS client_address,
-            c.method AS client_method,
         
             GROUP_CONCAT(
-                CONCAT(
-                    '{',
-                        '\"order_id\":', o.id, ',',
-                        '\"order_quantity\":', o.quantity, ',',
-                        '\"order_date\":\"', o.date, '\",',
-                        '\"product_id\":', p.id, ',',
-                        '\"product_title\":\"', p.title, '\",',
-                        '\"product_price\":', p.price,
-                    '}'
+                JSON_OBJECT(
+                    'order_id', o.id,
+                    'order_quantity', o.quantity,
+                    'order_date', o.date,
+                    'product_id', p.id,
+                    'product_title', p.title,
+                    'product_price', p.price
                 )
-                SEPARATOR ','
             ) AS orders
         FROM clients c
         LEFT JOIN orders o ON c.id = o.client_id
@@ -181,21 +178,7 @@ class FoodModel
         GROUP BY c.id;
         ");
         $stmt->execute();
-        $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Convertir la chaîne JSON en objet JSON pour chaque client
-        foreach ($clients as $key => $client) {
-            if ($client['orders'] !== null) {
-                // Vérifier si la chaîne JSON est non vide avant de la convertir
-                if (!empty($client['orders'])) {
-                    $clients[$key]['orders'] = array_map('json_decode', explode(',', $client['orders']));
-                } else {
-                    $clients[$key]['orders'] = null; // Si la chaîne est vide, définir orders sur null
-                }
-            }
-        }
-
-        return $clients;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
