@@ -35,13 +35,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Envoi de l'email
         if (mail($to, $subject, $message, $headers)) {
-            echo "Email de confirmation envoyé à : " . $email;
+            echo json_encode(["message" => "Email de confirmation envoyé à : " . $email]);
         } else {
-            echo "L'envoi de l'email de confirmation a échoué.";
+            echo json_encode(["message" => "L'envoi de l'email de confirmation a échoué."]);
         }
     } else {
-        echo "Tous les champs n'ont pas été renseignés.";
+        echo json_encode(["message" => "Tous les champs n'ont pas été renseignés."]);
     }
 } else {
-    echo "Méthode de requête non autorisée.";
+    echo json_encode(["message" => "Méthode de requête non autorisée."]);
 }
