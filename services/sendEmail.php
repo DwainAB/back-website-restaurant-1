@@ -22,6 +22,7 @@ if (isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
     $mail = new PHPMailer(true);
 
     // Paramètres du serveur
+    $mail->CharSet = 'UTF-8';
     $mail->isSMTP();                                            // Envoie en utilisant SMTP
     $mail->Host       = 'smtp.gmail.com';                       // Définit le serveur SMTP pour l'envoi
     $mail->SMTPAuth   = true;                                   // Active l'authentification SMTP
@@ -38,7 +39,7 @@ if (isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
     // Contenu
     $mail->isHTML(true);                                        // Définit le format de l'email en HTML
     $mail->Subject = "Commande en préparation !";                         // Sujet de l'email
-    $mail->Body    = "Bonjour " . $_POST['firstname'] . " ,<br><br>" . "Nous avons bien reçu ta commande et nous t'en remercions ! " . " ,<br><br>" . "Elle sera disponible d'ici 30min"; // Message de l'email
+    $mail->Body    = "Bonjour " . $_POST['firstName'] . " ,<br><br>" . "Nous avons bien reçu ta commande et nous t'en remercions ! " . " ,<br><br>" . "Elle sera disponible d'ici 30min"; // Message de l'email
 
     try {
         $mail->send();
