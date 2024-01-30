@@ -37,8 +37,8 @@ if (isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
 
     // Contenu
     $mail->isHTML(true);                                        // Définit le format de l'email en HTML
-    $mail->Subject = "Commande reçu !";                         // Sujet de l'email
-    $mail->Body    = "Bonjour " . $_POST['firstname'] . " " . $_POST['lastname'] . ",<br><br>" . "Votre commande à bien été envoyé !"; // Message de l'email
+    $mail->Subject = "Commande en préparation !";                         // Sujet de l'email
+    $mail->Body    = "Bonjour " . $_POST['firstname'] . " ,<br><br>" . "Nous avons bien reçu ta commande et nous t'en remercions ! " . " ,<br><br>" . "Elle sera disponible d'ici 30min"; // Message de l'email
 
     try {
         $mail->send();
