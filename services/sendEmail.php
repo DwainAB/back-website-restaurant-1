@@ -36,7 +36,7 @@ if (!isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
 
     // Destinataires
     $mail->setFrom('dwaincontact@gmail.com', 'Dwain');         // Email et nom de l'expéditeur
-    $mail->addAddress($_POST['email'], $_POST['firstname'] . ' ' . $_POST['lastname']); // Ajoute un destinataire
+    $mail->addAddress($_POST['email'], $_POST['firstName'] . ' ' . $_POST['lastName']); // Ajoute un destinataire
     $mail->addReplyTo('dwaincontact@gmail.com', 'Information'); // Réponse à l'email de l'expéditeur
 
     // Contenu
