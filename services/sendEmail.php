@@ -17,8 +17,11 @@ require 'phpmailer/src/PHPMailer.php';
 require 'phpmailer/src/SMTP.php';
 
 // Crée une instance ; passer `true` active les exceptions
-if (isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
-    echo json_encode(['received' => $_POST]);
+if (!isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
+    // Retourne une erreur si les paramètres nécessaires ne sont pas présents
+    echo json_encode(['error' => 'Paramètres manquants']);
+    exit;
+}
     $mail = new PHPMailer(true);
 
     // Paramètres du serveur
