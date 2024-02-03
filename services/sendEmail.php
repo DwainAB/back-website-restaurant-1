@@ -50,4 +50,4 @@ if (!isset($_POST['email'], $_POST['firstName'], $_POST['lastName'])) {
     } catch (Exception $e) {
         echo json_encode(['message' => 'Erreur envoi mail: ' . $e->getMessage()]);
     }
-}
+
