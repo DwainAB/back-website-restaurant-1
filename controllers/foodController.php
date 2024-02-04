@@ -21,7 +21,7 @@ class FoodController
     }
 
 
-    /*public function addFood()
+    public function addFood()
     {
         // Assurez-vous que les données requises sont présentes dans la demande
         if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_FILES['image'])) {
@@ -45,67 +45,26 @@ class FoodController
                 echo json_encode(array("message" => "Impossible d'ajouter le produit."));
             }
         } else {
-            // Les données requises sont manquantes
-            http_response_code(400); // Mauvaise demande
-            echo json_encode(array("message" => "Données manquantes. Veuillez fournir title, description, price et image."));
+ http_response_code(400); // Mauvaise demande
+        $missingFields = [];
+        if (!isset($_POST['title'])) {
+            $missingFields[] = 'title';
         }
-    }*/
-
-    public function addFood()
-{
-    // Assurez-vous que les données requises sont présentes dans la demande
-    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_FILES['image'])) {
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-        $category = $_POST['category'];
-        $price = $_POST['price'];
-
-        // Vérifiez les valeurs des variables envoyées dans la demande
-        var_dump($_POST);
-        var_dump($_FILES);
-
-        // Gérer l'upload de fichier
-        $imageFile = $_FILES['image'];
-
-        // Vérifiez les erreurs lors de l'envoi du fichier
-        if ($imageFile['error'] !== UPLOAD_ERR_OK) {
-            http_response_code(500); // Erreur interne du serveur
-            echo json_encode(array("message" => "Une erreur s'est produite lors du téléchargement de l'image."));
-            return;
+        if (!isset($_POST['description'])) {
+            $missingFields[] = 'description';
         }
-
-        $imagePath = 'images/' . basename($imageFile['name']);
-
-        // Vérifiez la taille maximale du fichier autorisée
-        if ($imageFile['size'] > 5000000) { // Exemple : taille maximale de 5 Mo
-            http_response_code(400); // Mauvaise demande
-            echo json_encode(array("message" => "La taille du fichier dépasse la limite autorisée."));
-            return;
+        if (!isset($_POST['category'])) {
+            $missingFields[] = 'category';
         }
-
-        // Déplacez le fichier téléchargé vers le répertoire souhaité
-        if (!move_uploaded_file($imageFile['tmp_name'], $imagePath)) {
-            http_response_code(500); // Erreur interne du serveur
-            echo json_encode(array("message" => "Une erreur s'est produite lors de la sauvegarde de l'image."));
-            return;
+        if (!isset($_POST['price'])) {
+            $missingFields[] = 'price';
         }
-
-        if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
-            // Le produit a été ajouté avec succès
-            http_response_code(201); // Code de succès pour création
-            echo json_encode(array("message" => "Produit ajouté avec succès."));
-        } else {
-            // Une erreur s'est produite lors de l'ajout du produit
-            http_response_code(500); // Erreur interne du serveur
-            echo json_encode(array("message" => "Impossible d'ajouter le produit."));
+        if (!isset($_FILES['image'])) {
+            $missingFields[] = 'image';
         }
-    } else {
-        // Les données requises sont manquantes
-        http_response_code(400); // Mauvaise demande
-        echo json_encode(array("message" => "Données manquantes. Veuillez fournir title, description, price et image."));
+        echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
+        }
     }
-}
-
 
 
     public function updateFood($id)
