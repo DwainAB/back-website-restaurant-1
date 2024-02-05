@@ -20,7 +20,7 @@ class FoodController
         }
     }
 
-    $dossierDestination = "images/";
+    $dossierDestination = "../images/";
 
 // Fonction pour gérer l'upload d'image depuis React Native
 function uploadImageFromReactNative($imageURI) {
