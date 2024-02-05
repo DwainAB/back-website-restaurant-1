@@ -22,30 +22,38 @@ class FoodController
 
 
     public function addFood()
-    {
-        // Assurez-vous que les données requises sont présentes dans la demande
-        if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_FILES['image'])) {
-            $title = $_POST['title'];
-            $description = $_POST['description'];
-            $category = $_POST['category'];
-            $price = $_POST['price'];
+{
+    // Assurez-vous que les données requises sont présentes dans la demande
+    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_FILES['image'])) {
+        $title = $_POST['title'];
+        $description = $_POST['description'];
+        $category = $_POST['category'];
+        $price = $_POST['price'];
 
-            // Gérer l'upload de fichier
+        // Gérer l'URI ou l'upload de fichier
+        if (isset($_FILES['image'])) {
             $imageFile = $_FILES['image'];
             $imagePath = 'images/' . basename($imageFile['name']);
             move_uploaded_file($imageFile['tmp_name'], $imagePath);
-
-            if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
-                // Le produit a été ajouté avec succès
-                http_response_code(201); // Code de succès pour création
-                echo json_encode(array("message" => "Produit ajouté avec succès."));
-            } else {
-                // Une erreur s'est produite lors de l'ajout du produit
-                http_response_code(500); // Erreur interne du serveur
-                echo json_encode(array("message" => "Impossible d'ajouter le produit."));
-            }
+        } elseif (isset($_POST['imageURI'])) {
+            $imagePath = $_POST['imageURI']; // Utiliser l'URI envoyé depuis l'application React Native
         } else {
- http_response_code(400); // Mauvaise demande
+            http_response_code(400); // Mauvaise demande
+            echo json_encode(array("message" => "Image manquante."));
+            return;
+        }
+
+        if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
+            // Le produit a été ajouté avec succès
+            http_response_code(201); // Code de succès pour création
+            echo json_encode(array("message" => "Produit ajouté avec succès."));
+        } else {
+            // Une erreur s'est produite lors de l'ajout du produit
+            http_response_code(500); // Erreur interne du serveur
+            echo json_encode(array("message" => "Impossible d'ajouter le produit."));
+        }
+    } else {
+        http_response_code(400); // Mauvaise demande
         $missingFields = [];
         if (!isset($_POST['title'])) {
             $missingFields[] = 'title';
@@ -59,12 +67,13 @@ class FoodController
         if (!isset($_POST['price'])) {
             $missingFields[] = 'price';
         }
-        if (!isset($_FILES['image'])) {
+        if (!isset($_FILES['image']) && !isset($_POST['imageURI'])) {
             $missingFields[] = 'image';
         }
         echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
-        }
     }
+}
+
 
 
     public function updateFood($id)
