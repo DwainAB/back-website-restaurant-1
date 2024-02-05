@@ -20,27 +20,27 @@ class FoodController
         }
     }
 
-    $dossierDestination = "../images/";
+public function uploadImageFromReactNative($imageURI)
+    {
+        $dossierDestination = "../images/"; // Déplacez cette déclaration à l'intérieur de la méthode
 
-// Fonction pour gérer l'upload d'image depuis React Native
-function uploadImageFromReactNative($imageURI) {
-  // Déterminer le nom du fichier
-  $nomFichier = basename($imageURI);
+        // Déterminer le nom du fichier
+        $nomFichier = basename($imageURI);
 
-  // Déterminer le type de fichier
-  $typeFichier = mime_content_type($imageURI);
+        // Déterminer le type de fichier
+        $typeFichier = mime_content_type($imageURI);
 
-  // Télécharger l'image depuis l'URI
-  $imageContent = file_get_contents($imageURI);
+        // Télécharger l'image depuis l'URI
+        $imageContent = file_get_contents($imageURI);
 
-  // Définir le nom unique du fichier
-  $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
+        // Définir le nom unique du fichier
+        $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
 
-  // Déplacer le fichier vers le dossier de destination
-  file_put_contents($dossierDestination . $nomUnique, $imageContent);
+        // Déplacer le fichier vers le dossier de destination
+        file_put_contents($dossierDestination . $nomUnique, $imageContent);
 
-  return $nomUnique;
-}
+        return $nomUnique;
+    }
 
 public function addFood()
 {
