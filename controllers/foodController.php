@@ -20,8 +20,81 @@ class FoodController
         }
     }
 
+    $dossierDestination = "images/";
+
+// Fonction pour gérer l'upload d'image depuis React Native
+function uploadImageFromReactNative($imageURI) {
+  // Déterminer le nom du fichier
+  $nomFichier = basename($imageURI);
+
+  // Déterminer le type de fichier
+  $typeFichier = mime_content_type($imageURI);
+
+  // Télécharger l'image depuis l'URI
+  $imageContent = file_get_contents($imageURI);
+
+  // Définir le nom unique du fichier
+  $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
+
+  // Déplacer le fichier vers le dossier de destination
+  file_put_contents($dossierDestination . $nomUnique, $imageContent);
+
+  return $nomUnique;
+}
 
 public function addFood()
+{
+  // Assurez-vous que les données requises sont présentes dans la demande
+  if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $category = $_POST['category'];
+    $price = $_POST['price'];
+
+    // Gérer l'upload de fichier
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+      $imageFile = $_FILES['image'];
+      $imagePath = 'images/' . basename($imageFile['name']);
+      move_uploaded_file($imageFile['tmp_name'], $imagePath);
+    } elseif (isset($_POST['imageURI'])) {
+      $imagePath = uploadImageFromReactNative($_POST['imageURI']);
+    } else {
+      http_response_code(400); // Mauvaise demande
+      echo json_encode(array("message" => "Image manquante."));
+      return;
+    }
+
+    if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
+      // Le produit a été ajouté avec succès
+      http_response_code(201); // Code de succès pour création
+      echo json_encode(array("message" => "Produit ajouté avec succès."));
+    } else {
+      // Une erreur s'est produite lors de l'ajout du produit
+      http_response_code(500); // Erreur interne du serveur
+      echo json_encode(array("message" => "Impossible d'ajouter le produit."));
+    }
+  } else {
+    http_response_code(400); // Mauvaise demande
+    $missingFields = [];
+    if (!isset($_POST['title'])) {
+      $missingFields[] = 'title';
+    }
+    if (!isset($_POST['description'])) {
+      $missingFields[] = 'description';
+    }
+    if (!isset($_POST['category'])) {
+      $missingFields[] = 'category';
+    }
+    if (!isset($_POST['price'])) {
+      $missingFields[] = 'price';
+    }
+    echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
+  }
+}
+
+
+
+/*public function addFood()
 {
     // Assurez-vous que les données requises sont présentes dans la demande
     if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
@@ -74,7 +147,7 @@ public function addFood()
         echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
     }
 }
-
+*/
 
 
 
