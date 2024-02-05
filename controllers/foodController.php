@@ -21,22 +21,26 @@ class FoodController
     }
 
 
-    public function addFood()
+public function addFood()
 {
     // Assurez-vous que les données requises sont présentes dans la demande
-    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_FILES['image'])) {
+    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
         $title = $_POST['title'];
         $description = $_POST['description'];
         $category = $_POST['category'];
         $price = $_POST['price'];
 
-        // Gérer l'URI ou l'upload de fichier
-        if (isset($_FILES['image'])) {
+        // Gérer l'upload de fichier
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $imageFile = $_FILES['image'];
             $imagePath = 'images/' . basename($imageFile['name']);
             move_uploaded_file($imageFile['tmp_name'], $imagePath);
         } elseif (isset($_POST['imageURI'])) {
-            $imagePath = $_POST['imageURI']; // Utiliser l'URI envoyé depuis l'application React Native
+            // Télécharger l'image depuis l'URI
+            $imageURI = $_POST['imageURI'];
+            $imageContent = file_get_contents($imageURI);
+            $imagePath = 'images/' . basename($imageURI);
+            file_put_contents($imagePath, $imageContent);
         } else {
             http_response_code(400); // Mauvaise demande
             echo json_encode(array("message" => "Image manquante."));
@@ -67,12 +71,10 @@ class FoodController
         if (!isset($_POST['price'])) {
             $missingFields[] = 'price';
         }
-        if (!isset($_FILES['image']) && !isset($_POST['imageURI'])) {
-            $missingFields[] = 'image';
-        }
         echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
     }
 }
+
 
 
 
