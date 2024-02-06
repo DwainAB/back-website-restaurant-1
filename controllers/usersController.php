@@ -29,25 +29,25 @@ class UserController
 
     // Vérification de la présence de tous les champs requis
     if (!$firstname) {
-        $missingFields[] = 'Prénom';
+        $missingFields[] = 'firstname';
     }
     if (!$lastname) {
-        $missingFields[] = 'Nom';
+        $missingFields[] = 'lastname';
     }
     if (!$email) {
-        $missingFields[] = 'Email';
+        $missingFields[] = 'email';
     }
     if (!$password) {
-        $missingFields[] = 'Mot de passe';
+        $missingFields[] = 'password';
     }
     if (!$tel) {
-        $missingFields[] = 'Téléphone';
+        $missingFields[] = 'tel';
     }
     if (!$address) {
-        $missingFields[] = 'Adresse';
+        $missingFields[] = 'address';
     }
     if (!$role) {
-        $missingFields[] = 'Rôle';
+        $missingFields[] = 'role';
     }
 
     if (!empty($missingFields)) {
