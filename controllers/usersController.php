@@ -24,10 +24,35 @@ class UserController
     $address = $_POST['address'] ?? null;
     $role = $_POST['role'] ?? null;
 
+    // Initialisation du tableau pour stocker les champs manquants
+    $missingFields = array();
+
     // Vérification de la présence de tous les champs requis
-    if (!$firstname || !$lastname || !$email || !$password || !$tel || !$address || !$role) {
+    if (!$firstname) {
+        $missingFields[] = 'Prénom';
+    }
+    if (!$lastname) {
+        $missingFields[] = 'Nom';
+    }
+    if (!$email) {
+        $missingFields[] = 'Email';
+    }
+    if (!$password) {
+        $missingFields[] = 'Mot de passe';
+    }
+    if (!$tel) {
+        $missingFields[] = 'Téléphone';
+    }
+    if (!$address) {
+        $missingFields[] = 'Adresse';
+    }
+    if (!$role) {
+        $missingFields[] = 'Rôle';
+    }
+
+    if (!empty($missingFields)) {
         $response['success'] = false;
-        $response['message'] = 'Certains champs sont manquants dans la requête.';
+        $response['message'] = 'Certains champs sont manquants dans la requête : ' . implode(', ', $missingFields) . '.';
         echo json_encode($response);
         return;
     }
@@ -46,6 +71,7 @@ class UserController
     header('Content-Type: application/json');
     echo json_encode($response);
 }
+
 
 
 
