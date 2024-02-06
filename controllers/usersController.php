@@ -12,7 +12,7 @@ class UserController
         $this->userModel = $userModel;
     }
 
-    public function addUser()
+  public function addUser()
 {
     $response = array();
 
@@ -24,23 +24,29 @@ class UserController
     $address = $_POST['address'] ?? null;
     $role = $_POST['role'] ?? null;
 
-    if ($firstname && $lastname && $email && $password && $tel && $address && $role) {
-        if ($this->userModel->emailExists($email)) {
-            $response['success'] = false;
-            $response['message'] = 'Erreur : L\'email est déjà utilisé.';
-        } else {
-            $this->userModel->addUser($firstname, $lastname, $email, $password, $tel, $address, $role);
-            $response['success'] = true;
-            $response['message'] = 'Utilisateur ajouté avec succès.';
-        }
-    } else {
+    // Vérification de la présence de tous les champs requis
+    if (!$firstname || !$lastname || !$email || !$password || !$tel || !$address || !$role) {
         $response['success'] = false;
-        $response['message'] = 'Tous les champs sont requis.';
+        $response['message'] = 'Certains champs sont manquants dans la requête.';
+        echo json_encode($response);
+        return;
+    }
+
+    // Vérification si l'email est déjà utilisé
+    if ($this->userModel->emailExists($email)) {
+        $response['success'] = false;
+        $response['message'] = 'Erreur : L\'email est déjà utilisé.';
+    } else {
+        // Ajout de l'utilisateur
+        $this->userModel->addUser($firstname, $lastname, $email, $password, $tel, $address, $role);
+        $response['success'] = true;
+        $response['message'] = 'Utilisateur ajouté avec succès.';
     }
 
     header('Content-Type: application/json');
     echo json_encode($response);
 }
+
 
 
 
