@@ -23,6 +23,7 @@ class UserController
     $tel = $_POST['tel'];
     $address = $_POST['address'];
     $role = $_POST['role'];
+}
 
     
     $response = array();
