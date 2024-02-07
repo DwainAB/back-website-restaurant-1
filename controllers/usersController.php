@@ -52,7 +52,7 @@ class UserController
 
     if (!empty($missingFields)) {
         $response['success'] = false;
-        $response['message'] = 'Certains champs sont manquants dans la requête : ' . implode(', ', $missingFields) . '.';
+        $response['message'] = 'il Manque : ' . implode(', ', $missingFields) . '.';
         echo json_encode($response);
         return;
     }
@@ -65,7 +65,7 @@ class UserController
         // Ajout de l'utilisateur
         $this->userModel->addUser($firstname, $lastname, $email, $password, $tel, $address, $role);
         $response['success'] = true;
-        $response['message'] = 'Utilisateur ajouté avec succès.';
+        $response['message'] = 'Utilisateur ajouté avec succès !!!!!!.';
     }
 
     header('Content-Type: application/json');
