@@ -12,29 +12,21 @@ class UserController
         $this->userModel = $userModel;
     }
 
-  public function addUser()
+ public function addUser()
 {
 
-    if (isset($_POST['firstname']) && isset($_POST['lastname']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['tel']) && isset($_POST['address']) && isset($_POST['role']) {
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $tel = $_POST['tel'];
-    $address = $_POST['address'];
-    $role = $_POST['role'];
-}
+    if (isset($_POST['firstname']) && isset($_POST['lastname']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['tel']) && isset($_POST['address']) && isset($_POST['role'])) {
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $tel = $_POST['tel'];
+        $address = $_POST['address'];
+        $role = $_POST['role'];
+    }
 
     
     $response = array();
-
-    /*$firstname = $_POST['firstname'] ?? null;
-    $lastname = $_POST['lastname'] ?? null;
-    $email = $_POST['email'] ?? null;
-    $password = $_POST['password'] ?? null;
-    $tel = $_POST['tel'] ?? null;
-    $address = $_POST['address'] ?? null;
-    $role = $_POST['role'] ?? null;*/
 
     // Initialisation du tableau pour stocker les champs manquants
     $missingFields = array();
