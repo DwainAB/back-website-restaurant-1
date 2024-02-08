@@ -21,26 +21,54 @@ class FoodController
     }
 
 public function uploadImageFromReactNative($imageURI)
-    {
-        $dossierDestination = "images/"; // Déplacez cette déclaration à l'intérieur de la méthode
+{
+    // Extraire le chemin de l'URI
+    $parsedUrl = parse_url($imageURI);
+    $path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
 
-        // Déterminer le nom du fichier
-        $nomFichier = basename($imageURI);
+    // Décoder les caractères spéciaux dans le chemin
+    $decodedPath = urldecode($path);
 
-        // Déterminer le type de fichier
-        $typeFichier = mime_content_type($imageURI);
-
-        // Télécharger l'image depuis l'URI
-        $imageContent = file_get_contents($imageURI);
-
-        // Définir le nom unique du fichier
-        $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
-
-        // Déplacer le fichier vers le dossier de destination
-        file_put_contents($dossierDestination . $nomUnique, $imageContent);
-
-        return $nomUnique;
+    // Vérifier si le chemin est vide
+    if (empty($decodedPath)) {
+        throw new Exception("Chemin de l'image invalide.");
     }
+
+    // Vérifier si le fichier existe
+    if (!file_exists($decodedPath)) {
+        throw new Exception("Le fichier d'image n'existe pas.");
+    }
+
+    // Lire le contenu du fichier
+    $imageContent = file_get_contents($decodedPath);
+
+    // Vérifier si le contenu a été lu avec succès
+    if ($imageContent === false) {
+        throw new Exception("Impossible de lire le contenu de l'image.");
+    }
+
+    // Déterminer le nom du fichier
+    $nomFichier = basename($decodedPath);
+
+    // Définir le dossier de destination
+    $dossierDestination = "images/";
+
+    // Définir le nom unique du fichier
+    $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
+
+    // Déplacer le fichier vers le dossier de destination
+    $cheminFichierDestination = $dossierDestination . $nomUnique;
+    $resultat = file_put_contents($cheminFichierDestination, $imageContent);
+
+    // Vérifier si le fichier a été sauvegardé avec succès
+    if ($resultat === false) {
+        throw new Exception("Impossible de sauvegarder l'image.");
+    }
+
+    return $nomUnique;
+}
+
+
 
 public function addFood()
 {
