@@ -24,17 +24,24 @@ public function uploadImageFromReactNative($imageURI)
 {
     $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
 
-    // Définir le nom unique du fichier
-    $nomUnique = uniqid() . ".jpeg"; // ou .png, selon le format de l'image
+    // Extraire le chemin de fichier local à partir de l'URI fourni
+    $imagePath = parse_url($imageURI, PHP_URL_PATH);
+
+    // Déterminer le nom du fichier
+    $nomFichier = basename($imagePath);
 
     // Télécharger l'image depuis l'URI
-    $imageContent = file_get_contents($imageURI);
+    $imageContent = file_get_contents($imagePath);
+
+    // Définir le nom unique du fichier
+    $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
 
     // Déplacer le fichier vers le dossier de destination
     file_put_contents($dossierDestination . $nomUnique, $imageContent);
 
     return $nomUnique;
 }
+
 
 
 
