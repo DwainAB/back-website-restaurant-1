@@ -59,7 +59,7 @@ public function addFood()
       $imagePath = 'images/' . basename($imageFile['name']);
       move_uploaded_file($imageFile['tmp_name'], $imagePath);
     } elseif (isset($_POST['imageURI'])) {
-        var_dump($_POST['imageURI']);
+      //var_dump($_POST['imageURI']);
       $imagePath = $this->uploadImageFromReactNative($_POST['imageURI']); // Modifier cette ligne
     } else {
       http_response_code(400); // Mauvaise demande
