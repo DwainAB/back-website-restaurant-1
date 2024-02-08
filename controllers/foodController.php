@@ -22,7 +22,7 @@ class FoodController
 
 public function uploadImageFromReactNative($imageURI)
     {
-        $dossierDestination = "../images/"; // Déplacez cette déclaration à l'intérieur de la méthode
+        $dossierDestination = "images/"; // Déplacez cette déclaration à l'intérieur de la méthode
 
         // Déterminer le nom du fichier
         $nomFichier = basename($imageURI);
