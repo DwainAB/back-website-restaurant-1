@@ -21,26 +21,21 @@ class FoodController
     }
 
 public function uploadImageFromReactNative($imageURI)
-    {
-        $dossierDestination = "images/"; // Déplacez cette déclaration à l'intérieur de la méthode
+{
+    $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
 
-        // Déterminer le nom du fichier
-        $nomFichier = basename($imageURI);
+    // Définir le nom unique du fichier
+    $nomUnique = uniqid() . ".jpeg"; // ou .png, selon le format de l'image
 
-        // Déterminer le type de fichier
-        $typeFichier = mime_content_type($imageURI);
+    // Télécharger l'image depuis l'URI
+    $imageContent = file_get_contents($imageURI);
 
-        // Télécharger l'image depuis l'URI
-        $imageContent = file_get_contents($imageURI);
+    // Déplacer le fichier vers le dossier de destination
+    file_put_contents($dossierDestination . $nomUnique, $imageContent);
 
-        // Définir le nom unique du fichier
-        $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
+    return $nomUnique;
+}
 
-        // Déplacer le fichier vers le dossier de destination
-        file_put_contents($dossierDestination . $nomUnique, $imageContent);
-
-        return $nomUnique;
-    }
 
 
 
