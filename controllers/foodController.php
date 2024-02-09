@@ -46,60 +46,96 @@ public function uploadImageFromReactNative($imageURI)
 
 
 
-public function addFood()
-{
-  // Assurez-vous que les données requises sont présentes dans la demande
-  if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $category = $_POST['category'];
-    $price = $_POST['price'];
+    public function uploadImageFromReactNative($imageURI)
+    {
+        $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
 
-    // Gérer l'upload de fichier
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-      var_dump('if ',$_FILES['image']);
-      $imageFile = $_FILES['image'];
-      $imagePath = 'images/' . basename($imageFile['name']);
-      move_uploaded_file($imageFile['tmp_name'], $imagePath);
-    } elseif (isset($_POST['imageURI'])) {
-      var_dump('elseif ',$_POST['imageURI']);
-      $imagePath = $this->uploadImageFromReactNative($_POST['imageURI']); // Modifier cette ligne
-    } else {
-      http_response_code(400); 
-      var_dump('elseimageUir ', $_POST['imageURI']);
-      var_dump('else image ', $_FILES['image']);
-      // Mauvaise demande
-      echo json_encode(array("message" => "Image manquante."));
-      return;
+        // Extraire le chemin de fichier local à partir de l'URI fourni
+        $imagePath = parse_url($imageURI, PHP_URL_PATH);
+
+        // Déterminer le nom du fichier
+        $nomFichier = basename($imagePath);
+
+        // Télécharger l'image depuis l'URI
+        try {
+            $imageContent = file_get_contents($imagePath);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(array("message" => "Une erreur est survenue lors du téléchargement de l'image."));
+            return;
+        }
+
+        // Déterminer le type MIME de l'image
+        $finfo = finfo_open();
+        $mimeType = finfo_buffer($finfo, $imageContent, FILEINFO_MIME_TYPE);
+        finfo_close($finfo);
+
+        // Vérifier si le type MIME est une image
+        if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
+            http_response_code(400);
+            echo json_encode(array("message" => "Le type de fichier n'est pas une image valide."));
+            return;
+        }
+
+        // Définir le nom unique du fichier
+        $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
+
+        // Déplacer le fichier vers le dossier de destination
+        file_put_contents($dossierDestination . $nomUnique, $imageContent);
+
+        return $nomUnique;
     }
 
-    if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
-      // Le produit a été ajouté avec succès
-      http_response_code(201); // Code de succès pour création
-      echo json_encode(array("message" => "Produit ajouté avec succès."));
-    } else {
-      // Une erreur s'est produite lors de l'ajout du produit
-      http_response_code(500); // Erreur interne du serveur
-      echo json_encode(array("message" => "Impossible d'ajouter le produit."));
+    public function addFood()
+    {
+        // Assurez-vous que les données requises sont présentes dans la demande
+        if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
+            $title = $_POST['title'];
+            $description = $_POST['description'];
+            $category = $_POST['category'];
+            $price = $_POST['price'];
+
+            // Gérer l'upload de fichier
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $imageFile = $_FILES['image'];
+                $imagePath = 'images/' . basename($imageFile['name']);
+                move_uploaded_file($imageFile['tmp_name'], $imagePath);
+            } elseif (isset($_POST['imageURI'])) {
+                $imagePath = $this->uploadImageFromReactNative($_POST['imageURI']);
+            } else {
+                http_response_code(400);
+                echo json_encode(array("message" => "Image manquante."));
+                return;
+            }
+
+            if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
+                // Le produit a été ajouté avec succès
+                http_response_code(201); // Code de succès pour création
+                echo json_encode(array("message" => "Produit ajouté avec succès."));
+            } else {
+                // Une erreur s'est produite lors de l'ajout du produit
+                http_response_code(500); // Erreur interne du serveur
+                echo json_encode(array("message" => "Impossible d'ajouter le produit."));
+            }
+        } else {
+            // Mauvaise demande
+            http_response_code(400);
+            $missingFields = [];
+            if (!isset($_POST['title'])) {
+                $missingFields[] = 'title';
+            }
+            if (!isset($_POST['description'])) {
+                $missingFields[] = 'description';
+            }
+            if (!isset($_POST['category'])) {
+                $missingFields[] = 'category';
+            }
+            if (!isset($_POST['price'])) {
+                $missingFields[] = 'price';
+            }
+            echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
+        }
     }
-  } else {
-    http_response_code(400); // Mauvaise demande
-    $missingFields = [];
-    if (!isset($_POST['title'])) {
-      $missingFields[] = 'title';
-    }
-    if (!isset($_POST['description'])) {
-      $missingFields[] = 'description';
-    }
-    if (!isset($_POST['category'])) {
-      $missingFields[] = 'category';
-    }
-    if (!isset($_POST['price'])) {
-      $missingFields[] = 'price';
-    }
-    echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
-  }
-}
 
 
 
