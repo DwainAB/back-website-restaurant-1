@@ -57,17 +57,17 @@ public function addFood()
 
     // Gérer l'upload de fichier
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-      var_dump($_FILES['image']);
+      var_dump('if ',$_FILES['image']);
       $imageFile = $_FILES['image'];
       $imagePath = 'images/' . basename($imageFile['name']);
       move_uploaded_file($imageFile['tmp_name'], $imagePath);
     } elseif (isset($_POST['imageURI'])) {
-      var_dump($_POST['imageURI']);
+      var_dump('elseif ',$_POST['imageURI']);
       $imagePath = $this->uploadImageFromReactNative($_POST['imageURI']); // Modifier cette ligne
     } else {
       http_response_code(400); 
-      var_dump($_POST['imageURI']);
-      var_dump($_FILES['image']);
+      var_dump('elseimageUir ', $_POST['imageURI']);
+      var_dump('else image ', $_FILES['image']);
       // Mauvaise demande
       echo json_encode(array("message" => "Image manquante."));
       return;
