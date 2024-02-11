@@ -24,41 +24,26 @@ class FoodController
     public function uploadImageFromReactNative($imageURI)
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
+        $imageData = json_decode(file_get_contents("php://input"));
+        echo json_encode($imageData->imageURI);
 
-        // Extraire le chemin de fichier local à partir de l'URI fourni
-        $imagePath = parse_url($imageURI, PHP_URL_PATH);
+        if($imageData->imageURI){
+            $fileName = $imageData->imageURI->fileName;
+            $base64 = $imageData->imageURI->base64;
 
-        // Déterminer le nom du fichier
-        $nomFichier = basename($imagePath);
-
-        // Télécharger l'image depuis l'URI
-        try {
-            $imageContent = file_get_contents($imagePath);
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(array("message" => "Une erreur est survenue lors du téléchargement de l'image."));
-            return;
+            $data = base64_decode($base64);
+            $success = file_put_contents($fileName, $data);
+            
+            if(success){
+                move_uploaded_file($file_tmp,"images/".$file_name);
+                echo json_encode("Success");
+            }else{
+                echo json_encode("Failed");
+            }
         }
 
-        // Déterminer le type MIME de l'image
-        $finfo = finfo_open();
-        $mimeType = finfo_buffer($finfo, $imageContent, FILEINFO_MIME_TYPE);
-        finfo_close($finfo);
+        echo json_encode('Failes');
 
-        // Vérifier si le type MIME est une image
-        if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif'])) {
-            http_response_code(400);
-            echo json_encode(array("message" => "Le type de fichier n'est pas une image valide."));
-            return;
-        }
-
-        // Définir le nom unique du fichier
-        $nomUnique = uniqid() . "." . pathinfo($nomFichier, PATHINFO_EXTENSION);
-
-        // Déplacer le fichier vers le dossier de destination
-        file_put_contents($dossierDestination . $nomUnique, $imageContent);
-
-        return $nomUnique;
     }
 
     public function addFood()
