@@ -61,9 +61,9 @@ class FoodController
                 $imagePath = 'images/' . basename($imageFile['name']);
                 move_uploaded_file($imageFile['tmp_name'], $imagePath);
             } elseif (isset($_POST['imageURI'])) {
-                var_dump($_POST['imageURI']);
                 echo json_encode(array("message" => 'reussi' ));
                 $imageData = json_decode($_POST['imageURI']);
+                var_dump($imageData);
                 $imagePath = $this->uploadImageFromReactNative($imageData);
             } else {
                 http_response_code(400);
