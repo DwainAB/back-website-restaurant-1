@@ -26,7 +26,7 @@ class FoodController
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
         //$imageData = json_decode(file_get_contents("php://input"));
 
-        if($imageData && isset($imageData->imageURI)){
+        if($imageData->imageURI){
             $fileName = $imageData->imageURI->fileName;
             $base64 = $imageData->imageURI->base64;
 
