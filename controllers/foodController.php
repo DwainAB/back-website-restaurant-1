@@ -25,9 +25,8 @@ class FoodController
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
         //$imageData = json_decode(file_get_contents("php://input"));
-        echo json_encode($imageData->imageURI);
 
-        if($imageData->imageURI){
+        if($imageData && isset($imageData->imageURI)){
             $fileName = $imageData->imageURI->fileName;
             $base64 = $imageData->imageURI->base64;
 
@@ -62,7 +61,7 @@ class FoodController
                 move_uploaded_file($imageFile['tmp_name'], $imagePath);
             } elseif (isset($_POST['imageURI'])) {
                 echo json_encode(array("message" => 'reussi' ));
-                $imageData = json_decode($_POST['imageURI']);
+                $imageData = $_POST['imageURI'];
                 var_dump($imageData);
                 $imagePath = $this->uploadImageFromReactNative($imageData);
             } else {
