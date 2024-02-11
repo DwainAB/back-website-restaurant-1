@@ -77,7 +77,7 @@ class FoodController
                 move_uploaded_file($imageFile['tmp_name'], $imagePath);
             } elseif (isset($_POST['imageURI'])) {
                 var_dump($_POST['imageURI']);
-                echo json_encode(array("message" => $_POST['imageURI'] ));
+                echo json_encode(array("message" => 'reussi' ));
                // $imagePath = $this->uploadImageFromReactNative($_POST['imageURI']);
             } else {
                 http_response_code(400);
@@ -111,6 +111,7 @@ class FoodController
                 $missingFields[] = 'price';
             }
             echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
+            
         }
     }
 
