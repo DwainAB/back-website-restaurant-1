@@ -25,7 +25,7 @@ class FoodController
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
         $imageData = json_decode($imageURI, true); // Décodez le JSON en tableau associatif
-        var_dump($imageData)
+        var_dump($imageData);
         if(is_array($imageData) && isset($imageData['imageURI'])){
             $imageURIData = $imageData['imageURI'];
             $fileName = $imageURIData['fileName'];
