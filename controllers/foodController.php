@@ -61,15 +61,20 @@ class FoodController
                 $imagePath = 'images/' . basename($imageFile['name']);
                 move_uploaded_file($imageFile['tmp_name'], $imagePath);
             } elseif (isset($_POST['imageURI'])) {
+
                 echo json_encode(array("message" => 'reussi' ));
                 $imageData = $_POST['imageURI'];
-                $imageData = json_decode($imageData, true);
-                $imageURI = $imageData['imageURI'];
-                var_dump($imageURI);
-                $imageURIType = gettype($imageURI);
+                $imageURIObject = json_decode($imageData['imageURI'], true);
+                var_dump($imageURIObject);
+                $imageData['imageURI'] = $imageURIArray;
+                
+                $encodedImageData = json_encode($imageData);
+                
+                var_dump($encodedImageData);
+                $imageURIType = gettype($encodedImageData);
 
                 if ($imageURIType === 'object') {
-                    var_dump($imageURI);
+                    
                 } else {
                   echo "pas objet";
                 }
