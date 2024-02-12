@@ -63,8 +63,16 @@ class FoodController
             } elseif (isset($_POST['imageURI'])) {
                 echo json_encode(array("message" => 'reussi' ));
                 $imageData = $_POST['imageURI'];
-                var_dump($imageData);
-                $imagePath = $this->uploadImageFromReactNative($imageData);
+                $imageData = json_decode($imageData, true);
+                $imageURI = $imageData['imageURI'];
+                $imageURIType = gettype($imageURI);
+
+                if ($imageURIType === 'object') {
+                    var_dump($imageURI);
+                } else {
+                  echo "pas objet";
+                }
+                //$imagePath = $this->uploadImageFromReactNative($imageData);
             } else {
                 http_response_code(400);
                 echo json_encode(array("message" => "Image manquante."));
