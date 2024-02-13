@@ -40,6 +40,12 @@ class FoodController
     
         $destinationFinale = $dossierDestination . $fileName;
         rename($fichierTemporaire, $destinationFinale);
+
+        $response = array(
+            'success' => true,
+            'message' => 'Produit ajouté avec succès.',
+            'imageURI' => $imageURI
+        );
     
         // Envoi d'une réponse JSON
         echo json_encode('success');
