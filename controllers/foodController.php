@@ -24,7 +24,9 @@ class FoodController
     public function uploadImageFromReactNative($imageURI)
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
+        echo gettype($imageURI);
         $imageURIObject = json_decode($imageURI);
+        $imageURIObject = $imageURI[0];
         $fileName = $imageURIObject->fileName;
         $mimeType = $imageURIObject->type;
         // Décodage de l'image
