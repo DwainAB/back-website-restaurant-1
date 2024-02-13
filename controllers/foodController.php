@@ -48,6 +48,15 @@ class FoodController
             } elseif (isset($_POST['imageURI'])) {
                 $imageData = $_POST['imageURI'];
                 $imagePath = $this->uploadImageFromReactNative($imageData);
+            
+                // Créer un tableau associatif avec les données à renvoyer
+                $responseData = array(
+                    "message" => "Image reçue avec succès.",
+                    "imageURI" => $imageData
+                );
+            
+                // Envoyer la réponse JSON
+                echo json_encode($responseData);
             } else {
                 http_response_code(400);
                 echo json_encode(array("message" => "Image manquante."));
