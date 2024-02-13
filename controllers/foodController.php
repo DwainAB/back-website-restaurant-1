@@ -21,14 +21,17 @@ class FoodController
     }
 
 
-    public function uploadImageFromReactNative($imageURI)
-    {
-        $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
-        
-        echo gettype($imageURI);
+public function uploadImageFromReactNative($imageURI)
+{
+    $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
+    
+    echo gettype($imageURI);
 
-        if (is_object($imageURIObject)) {
-            $imageURIObject = $imageURI[0];
+    // Vérifier si $imageURI est une chaîne JSON
+    if (is_string($imageURI)) {
+        $imageData = json_decode($imageURI); // Convertir la chaîne JSON en objet
+        if ($imageData) {
+            $imageURIObject = $imageData->imageURI;
             $fileName = $imageURIObject->fileName;
             $mimeType = $imageURIObject->type;
             // Décodage de l'image
@@ -43,13 +46,12 @@ class FoodController
         
             $destinationFinale = $dossierDestination . $fileName;
             rename($fichierTemporaire, $destinationFinale);
-        
         }
-
-    
-        // Envoi d'une réponse JSON
-        echo json_encode('success');
     }
+
+    // Envoi d'une réponse JSON
+    echo json_encode('success');
+}
 
 
     public function addFood()
