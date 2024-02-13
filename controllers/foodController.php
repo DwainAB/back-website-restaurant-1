@@ -26,9 +26,7 @@ class FoodController
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
         
         echo gettype($imageURI);
-        echo json_encode(array("type" =>$imageURI ));
 
-        $imageURIObject = json_decode($imageURI); // En supposant que $imageURI est reçu de React Native
         if (is_object($imageURIObject)) {
             $imageURIObject = $imageURI[0];
             $fileName = $imageURIObject->fileName;
@@ -72,14 +70,6 @@ class FoodController
                 $imageData = $_POST['imageURI'];
                 $imagePath = $this->uploadImageFromReactNative($imageData);
             
-                // Créer un tableau associatif avec les données à renvoyer
-                $responseData = array(
-                    "message" => "Image reçue avec succès.",
-                    "imageURI" => $imageData
-                );
-            
-                // Envoyer la réponse JSON
-                echo json_encode($responseData);
             } else {
                 http_response_code(400);
                 echo json_encode(array("message" => "Image manquante."));
