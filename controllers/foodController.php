@@ -24,23 +24,31 @@ class FoodController
     public function uploadImageFromReactNative($imageURI)
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
+        
         echo gettype($imageURI);
-        $imageURIObject = json_decode($imageURI);
-        $imageURIObject = $imageURI[0];
-        $fileName = $imageURIObject->fileName;
-        $mimeType = $imageURIObject->type;
-        // Décodage de l'image
-        $base64Image = $imageURIObject->base64;
-        $decodedImage = base64_decode($base64Image);
-    
-        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-    
-        // Enregistrement de l'image
-        $fichierTemporaire = tempnam(sys_get_temp_dir(), 'image');
-        file_put_contents($fichierTemporaire, $decodedImage);
-    
-        $destinationFinale = $dossierDestination . $fileName;
-        rename($fichierTemporaire, $destinationFinale);
+        echo json_encode(array("type" =>$imageURI ));
+
+        $imageURIObject = json_decode($imageURI); // En supposant que $imageURI est reçu de React Native
+        if (is_object($imageURIObject)) {
+            $imageURIObject = json_decode($imageURI);
+            $imageURIObject = $imageURI[0];
+            $fileName = $imageURIObject->fileName;
+            $mimeType = $imageURIObject->type;
+            // Décodage de l'image
+            $base64Image = $imageURIObject->base64;
+            $decodedImage = base64_decode($base64Image);
+        
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        
+            // Enregistrement de l'image
+            $fichierTemporaire = tempnam(sys_get_temp_dir(), 'image');
+            file_put_contents($fichierTemporaire, $decodedImage);
+        
+            $destinationFinale = $dossierDestination . $fileName;
+            rename($fichierTemporaire, $destinationFinale);
+        
+        }
+
     
         // Envoi d'une réponse JSON
         echo json_encode('success');
