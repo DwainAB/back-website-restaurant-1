@@ -21,37 +21,38 @@ class FoodController
     }
 
 
-public function uploadImageFromReactNative($imageURI)
-{
-    $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
+    public function uploadImageFromReactNative($imageURI)
+    {
+        $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
     
-    echo gettype($imageURI);
-
-    // Vérifier si $imageURI est une chaîne JSON
-    if (is_string($imageURI)) {
-        $imageData = json_decode($imageURI); // Convertir la chaîne JSON en objet
-        if ($imageData) {
-            $imageURIObject = $imageData->imageURI;
-            $fileName = $imageURIObject->fileName;
-            $mimeType = $imageURIObject->type;
-            // Décodage de l'image
-            $base64Image = $imageURIObject->base64;
-            $decodedImage = base64_decode($base64Image);
-        
-            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-        
-            // Enregistrement de l'image
-            $fichierTemporaire = tempnam(sys_get_temp_dir(), 'image');
-            file_put_contents($fichierTemporaire, $decodedImage);
-        
-            $destinationFinale = $dossierDestination . $fileName;
-            rename($fichierTemporaire, $destinationFinale);
+        // Vérifier si $imageURI est une chaîne JSON
+        if (is_string($imageURI)) {
+            $imageData = json_decode($imageURI); // Convertir la chaîne JSON en objet
+            if ($imageData) {
+                $imageURIObject = $imageData->imageURI;
+                $fileName = $imageURIObject->fileName;
+                $mimeType = $imageURIObject->type;
+                // Décodage de l'image
+                $base64Image = $imageURIObject->base64;
+                $decodedImage = base64_decode($base64Image);
+    
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+    
+                // Enregistrement de l'image
+                $fichierTemporaire = tempnam(sys_get_temp_dir(), 'image');
+                file_put_contents($fichierTemporaire, $decodedImage);
+    
+                $destinationFinale = $dossierDestination . $fileName;
+                rename($fichierTemporaire, $destinationFinale);
+    
+                // Retourner le chemin de l'image enregistrée
+                return $destinationFinale;
+            }
         }
+    
+        // En cas d'échec, retourner false ou null
+        return null;
     }
-
-    // Envoi d'une réponse JSON
-    echo json_encode('success');
-}
 
 
     public function addFood()
@@ -71,7 +72,13 @@ public function uploadImageFromReactNative($imageURI)
             } elseif (isset($_POST['imageURI'])) {
                 $imageData = $_POST['imageURI'];
                 $imagePath = $this->uploadImageFromReactNative($imageData);
-            
+                if (!$imagePath) {
+                // Échec de l'enregistrement de l'image
+                    http_response_code(500); // Erreur interne du serveur
+                    echo json_encode(array("message" => "Impossible d'enregistrer l'image."));
+                    return;
+                }
+
             } else {
                 http_response_code(400);
                 echo json_encode(array("message" => "Image manquante."));
