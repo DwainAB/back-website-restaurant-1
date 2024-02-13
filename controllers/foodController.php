@@ -30,7 +30,6 @@ class FoodController
 
         $imageURIObject = json_decode($imageURI); // En supposant que $imageURI est reçu de React Native
         if (is_object($imageURIObject)) {
-            $imageURIObject = json_decode($imageURI);
             $imageURIObject = $imageURI[0];
             $fileName = $imageURIObject->fileName;
             $mimeType = $imageURIObject->type;
