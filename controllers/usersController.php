@@ -123,7 +123,7 @@ class UserController
     public function deleteUser($id)
     {
         $this->userModel->delete($id);
-        echo 'Utilisateur supprimé avec succès.';
+        echo json_encode(['message' => 'Utilisateur supprimé avec succès.']);
     }
 
     public function login()
