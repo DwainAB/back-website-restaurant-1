@@ -9,9 +9,14 @@ class FoodController
         $this->model = $model;
     }
 
-    public function getAllFoods()
+    public function test()
     {
-        $foods = $this->model->getAllFoods();
+        print('test');
+    }
+
+    public function getAllFoods($ref_restaurant)
+    {
+        $foods = $this->model->getAllFoods($ref_restaurant);
         if ($foods !== false) {
             echo json_encode($foods);
         } else {
@@ -24,7 +29,7 @@ class FoodController
     public function uploadImageFromReactNative($imageURI)
     {
         $dossierDestination = "images/"; // Dossier de destination pour sauvegarder les images
-    
+
         // Vérifier si $imageURI est une chaîne JSON
         if (is_string($imageURI)) {
             $imageData = json_decode($imageURI); // Convertir la chaîne JSON en objet
@@ -35,21 +40,21 @@ class FoodController
                 // Décodage de l'image
                 $base64Image = $imageURIObject->base64;
                 $decodedImage = base64_decode($base64Image);
-    
+
                 $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-    
+
                 // Enregistrement de l'image
                 $fichierTemporaire = tempnam(sys_get_temp_dir(), 'image');
                 file_put_contents($fichierTemporaire, $decodedImage);
-    
+
                 $destinationFinale = $dossierDestination . $fileName;
                 rename($fichierTemporaire, $destinationFinale);
-    
+
                 // Retourner le chemin de l'image enregistrée
                 return $destinationFinale;
             }
         }
-    
+
         // En cas d'échec, retourner false ou null
         return null;
     }
@@ -58,11 +63,12 @@ class FoodController
     public function addFood()
     {
         // Assurez-vous que les données requises sont présentes dans la demande
-        if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
+        if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price']) && isset($_POST['ref_restaurant'])) {
             $title = $_POST['title'];
             $description = $_POST['description'];
             $category = $_POST['category'];
             $price = $_POST['price'];
+            $refRestaurant = $_POST['ref_restaurant']; // Ajout de la référence du restaurant
 
             // Gérer l'upload de fichier
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -73,19 +79,18 @@ class FoodController
                 $imageData = $_POST['imageURI'];
                 $imagePath = $this->uploadImageFromReactNative($imageData);
                 if (!$imagePath) {
-                // Échec de l'enregistrement de l'image
+                    // Échec de l'enregistrement de l'image
                     http_response_code(500); // Erreur interne du serveur
                     echo json_encode(array("message" => "Impossible d'enregistrer l'image."));
                     return;
                 }
-
             } else {
                 http_response_code(400);
                 echo json_encode(array("message" => "Image manquante."));
                 return;
             }
 
-            if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
+            if ($this->model->addFood($title, $description, $category, $price, $imagePath, $refRestaurant)) {
                 // Le produit a été ajouté avec succès
                 http_response_code(201); // Code de succès pour création
                 echo json_encode(array("message" => "Produit ajouté avec succès."));
@@ -110,68 +115,12 @@ class FoodController
             if (!isset($_POST['price'])) {
                 $missingFields[] = 'price';
             }
+            if (!isset($_POST['ref_restaurant'])) {
+                $missingFields[] = 'ref_restaurant'; // Ajout de la référence manquante
+            }
             echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
-            
         }
     }
-
-
-
-/*public function addFood()
-{
-    // Assurez-vous que les données requises sont présentes dans la demande
-    if (isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['price'])) {
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-        $category = $_POST['category'];
-        $price = $_POST['price'];
-
-        // Gérer l'upload de fichier
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $imageFile = $_FILES['image'];
-            $imagePath = 'images/' . basename($imageFile['name']);
-            move_uploaded_file($imageFile['tmp_name'], $imagePath);
-        } elseif (isset($_POST['imageURI'])) {
-            // Télécharger l'image depuis l'URI
-            $imageURI = $_POST['imageURI'];
-            $imageContent = file_get_contents($imageURI);
-            $imagePath = 'images/' . basename($imageURI);
-            file_put_contents($imagePath, $imageContent);
-        } else {
-            http_response_code(400); // Mauvaise demande
-            echo json_encode(array("message" => "Image manquante."));
-            return;
-        }
-
-        if ($this->model->addFood($title, $description, $category, $price, $imagePath)) {
-            // Le produit a été ajouté avec succès
-            http_response_code(201); // Code de succès pour création
-            echo json_encode(array("message" => "Produit ajouté avec succès."));
-        } else {
-            // Une erreur s'est produite lors de l'ajout du produit
-            http_response_code(500); // Erreur interne du serveur
-            echo json_encode(array("message" => "Impossible d'ajouter le produit."));
-        }
-    } else {
-        http_response_code(400); // Mauvaise demande
-        $missingFields = [];
-        if (!isset($_POST['title'])) {
-            $missingFields[] = 'title';
-        }
-        if (!isset($_POST['description'])) {
-            $missingFields[] = 'description';
-        }
-        if (!isset($_POST['category'])) {
-            $missingFields[] = 'category';
-        }
-        if (!isset($_POST['price'])) {
-            $missingFields[] = 'price';
-        }
-        echo json_encode(array("message" => "Données manquantes. Veuillez fournir les champs suivants : " . implode(', ', $missingFields)));
-    }
-}
-*/
-
 
 
     public function updateFood($id)
@@ -185,14 +134,17 @@ class FoodController
                     $data[$key] = htmlspecialchars($_POST[$key], ENT_QUOTES, 'UTF-8');
                 }
             }
-
             $updateImage = false; // Flag pour indiquer si l'image doit être mise à jour
-
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            if (isset($_POST['imageURI'])) {
                 // Un nouveau fichier a été sélectionné, procédez à l'upload
-                $imageFileName = time() . '-' . basename($_FILES['image']['name']);
-                $imagePath = 'images/' . $imageFileName;
-                move_uploaded_file($_FILES['image']['tmp_name'], $imagePath);
+                $imageData = $_POST['imageURI'];
+                $imagePath = $this->uploadImageFromReactNative($imageData);
+                if (!$imagePath) {
+                    // Échec de l'enregistrement de l'image
+                    http_response_code(500); // Erreur interne du serveur
+                    echo json_encode(array("message" => "Impossible d'enregistrer l'image."));
+                    return;
+                }
 
                 $data['image'] = $imagePath;
                 $updateImage = true; // Définissez le drapeau pour indiquer que l'image doit être mise à jour
@@ -210,7 +162,7 @@ class FoodController
                 echo json_encode(["success" => true, "message" => "Plat mis à jour avec succès."]);
             } else {
                 http_response_code(500);
-                echo json_encode(["success" => false, "error" => "Une erreur est survenue lors de la mise à jour du plat."]);
+                echo json_encode(["success" => false, "message" => "Une erreur est survenue lors de la mise à jour du plat."]);
             }
         } else {
             http_response_code(400);
@@ -219,17 +171,27 @@ class FoodController
     }
 
 
-
-
-
-
     public function deleteFood($id)
     {
+        // Récupérer le nom du fichier image associé au produit
+        $imageName = $this->model->getImageNameById($id);
+
+        // Supprimer le produit de la base de données
         $success = $this->model->deleteFood($id);
 
         if ($success) {
+            // Supprimer l'image du dossier images si elle existe
+            if ($imageName && file_exists($imageName)) {
+                unlink($imageName);
+            } else {
+                echo "Le dossier ou le nom n'existe pas ";
+            }
+
+            // Envoyer une réponse JSON avec le code de réussite
             http_response_code(204);
+            echo json_encode(['message' => 'Suppression réussie']);
         } else {
+            // Envoyer une réponse JSON avec le code d'erreur
             http_response_code(400);
             echo json_encode(['message' => 'Échec de la suppression du plat']);
         }
@@ -247,7 +209,7 @@ class FoodController
         $data = json_decode($json, true);
 
         // Assurez-vous que toutes les données requises sont présentes
-        $requiredFields = ['firstname', 'lastname', 'email', 'phone', 'address', 'cartItems'];
+        $requiredFields = ['firstname', 'lastname', 'email', 'phone', 'address', 'method', 'payment', 'cartItems'];
         $missingFields = [];
 
         foreach ($requiredFields as $field) {
@@ -269,17 +231,27 @@ class FoodController
         $phone = $data['phone'];
         $address = $data['address'];
         $method = $data['method'];
+        $payment = $data['payment'];
         $cartItems = $data['cartItems'];
+        $ref_restaurant = $data['ref_restaurant']; // Ajout de 'ref_restaurant'
+
+        // Générer ref_order
+        $ref_order = '#' . strtoupper(substr($lastname, 0, 1)) . mt_rand(1000, 9999);
+
+        //récupère la date d'aujourd'hui
+        $currentDate = date('Y-m-d');
 
         // Ajouter le client
-        $clientId = $this->model->addClient($firstname, $lastname, $email, $phone, $address, $method);
+        $clientId = $this->model->addClient($firstname, $lastname, $email, $phone, $address, $method, $payment, $ref_order, $ref_restaurant);
+        $clientDataId = $this->model->addDataClient($firstname, $lastname, $email, $phone, $address, $method, $payment, $ref_order, $ref_restaurant, $currentDate);
 
-        if ($clientId !== false) {
+        if ($clientId !== false && $clientDataId !== false) {
             // Ajouter chaque produit de la commande
             foreach ($cartItems as $item) {
                 $productId = $item['id'];
                 $quantity = $item['quantity'];
-                $this->model->addOrder($clientId, $productId, $quantity);
+                $this->model->addOrder($clientId, $productId, $quantity, $ref_restaurant);
+                $this->model->addDataOrder($clientDataId, $productId, $quantity, $ref_restaurant, $currentDate);
             }
 
             http_response_code(201); // Code de succès pour création
@@ -291,9 +263,11 @@ class FoodController
         }
     }
 
-    public function getClientsWithOrders()
+
+
+    public function getClientsWithOrders($ref_restaurant)
     {
-        $clientsWithOrders = $this->model->getClientsWithOrders();
+        $clientsWithOrders = $this->model->getClientsWithOrders($ref_restaurant);
         if ($clientsWithOrders !== false) {
             echo json_encode($clientsWithOrders);
         } else {
@@ -302,10 +276,76 @@ class FoodController
         }
     }
 
+    public function getClientsWithOrdersData($ref_restaurant)
+    {
+        $clientsWithOrders = $this->model->getClientsWithOrdersdata($ref_restaurant);
+        if ($clientsWithOrders !== false) {
+            echo json_encode($clientsWithOrders);
+        } else {
+            http_response_code(500); // Erreur de serveur interne
+            echo json_encode(["error" => "Échec de la récupération des clients avec les commandes"]);
+        }
+    }
+
+
     public function deleteClient($clientId)
     {
         try {
-            $this->model->deleteClientAndOrders($clientId);
+            // Récupérer les données du corps de la requête
+            $requestData = json_decode(file_get_contents('php://input'), true);
+
+            // Vérifier si les données sont valides
+            if (
+                isset($requestData['clientRefOrder']) &&
+                isset($requestData['clientLastName']) &&
+                isset($requestData['clientFirstName']) &&
+                isset($requestData['clientEmail']) &&
+                isset($requestData['clientMethod']) &&
+                isset($requestData['refRestaurant'])
+            ) {
+                // Récupérer les informations supplémentaires du corps de la requête
+                $clientRefOrder = $requestData['clientRefOrder'];
+                $clientLastName = $requestData['clientLastName'];
+                $clientFirstName = $requestData['clientFirstName'];
+                $clientEmail = $requestData['clientEmail'];
+                $clientMethod = $requestData['clientMethod'];
+                $refRestaurant = $requestData['refRestaurant'];
+
+                // Supprimer le client et ses commandes
+                $this->model->deleteClientAndOrders($clientId);
+
+                // Utiliser les informations supplémentaires comme nécessaire
+                require_once './services/sendEmailConfirmOrder.php';
+
+                if ($clientMethod === "A emporter") {
+                    sendMailConfirmOrder($clientEmail, $clientFirstName, $clientLastName, $clientRefOrder, $refRestaurant);
+                } elseif ($clientMethod === "Livraison") {
+                    sendMailConfirmOrderDelivery($clientEmail, $clientFirstName, $clientLastName, $clientRefOrder, $refRestaurant);
+                } else {
+                    echo json_encode(['message' => 'Pas de méthode de commande trouver']);
+                }
+
+                // Répondre avec succès
+                http_response_code(200);
+                echo json_encode(['message' => 'Le client et ses commandes ont été supprimés avec succès.']);
+            } else {
+                // Les données fournies ne sont pas complètes
+                http_response_code(400);
+                echo json_encode(['error' => 'Données manquantes dans la requête.']);
+            }
+        } catch (Exception $e) {
+            // En cas d'erreur, répondre avec un code d'erreur 500
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur lors de la suppression du client: ' . $e->getMessage()]);
+        }
+    }
+
+
+
+    public function deleteClientdata($clientId)
+    {
+        try {
+            $this->model->deleteClientAndOrdersData($clientId);
             http_response_code(200);
             echo json_encode(['message' => 'Le client et ses commandes ont été supprimés avec succès.']);
         } catch (Exception $e) {
@@ -314,26 +354,20 @@ class FoodController
         }
     }
 
-
     public function addCategory()
     {
-        // Récupérez le corps de la requête brute
-        $json = file_get_contents('php://input');
-
-        // Décoder le JSON en tableau associatif
-        $data = json_decode($json, true);
-
         // Assurez-vous que le nom de la catégorie est présent dans la demande
-        if (isset($data['name'])) {
-            $name = $data['name'];
+        if (isset($_POST['name'])) {
+            $name = $_POST['name'];
+            $refRestaurant = isset($_POST['ref_restaurant']) ? $_POST['ref_restaurant'] : ''; // Récupérer la valeur de ref_restaurant ou utiliser une valeur par défaut
 
             // Appeler la méthode du modèle pour ajouter la catégorie
-            $categoryId = $this->model->addCategory($name);
+            $categoryId = $this->model->addCategory($name, $refRestaurant);
 
             if ($categoryId !== false) {
                 // La catégorie a été ajoutée avec succès
                 http_response_code(201); // Code de succès pour création
-                echo json_encode(["message" => "Catégorie ajoutée avec succès.", "categoryId" => $categoryId]);
+                echo json_encode(["success" => "Catégorie ajoutée avec succès.", "categoryId" => $categoryId]);
             } else {
                 // Une erreur s'est produite lors de l'ajout de la catégorie
                 http_response_code(500); // Erreur interne du serveur
@@ -347,9 +381,9 @@ class FoodController
     }
 
 
-    public function getAllCategories()
+    public function getAllCategories($ref_restaurant)
     {
-        $categories = $this->model->getAllCategories();
+        $categories = $this->model->getAllCategories($ref_restaurant);
         if ($categories !== false) {
             echo json_encode($categories);
         } else {

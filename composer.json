@@ -1,0 +1,17 @@
+{
+    "name": "dwain/back-website-restaurant-1",
+    "require": {
+        "cboden/ratchet": "^0.4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dwain\\BackWebsiteRestaurant1\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "dwain93",
+            "email": "74243765+dwain93@users.noreply.github.com"
+        }
+    ]
+}
